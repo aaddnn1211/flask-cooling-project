@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects.list') }}">Projeler</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects.detail', id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active">{{ 'Yeni Ekipman' if equipment is none else 'Düzenle: ' + equipment.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card shadow-sm" data-aos="fade-up">
+        <div class="card-header bg-white py-3">
+            <h1 class="h3 mb-0">
+                {% if equipment is none %}
+                <i class="fas fa-plus-circle me-2"></i>Yeni Ekipman Ekle
+                {% else %}
+                <i class="fas fa-edit me-2"></i>Ekipmanı Düzenle
+                {% endif %}
+            </h1>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Ekipman adını girin") }}
+                            {% for error in form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.quantity.label(class="form-label") }}
+                            {{ form.quantity(class="form-control" + (" is-invalid" if form.quantity.errors else ""), min=1) }}
+                            {% for error in form.quantity.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.category_id.label(class="form-label") }}
+                    {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else "")) }}
+                    {% for error in form.category_id.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=4, placeholder="Ekipman açıklamasını girin") }}
+                    {% for error in form.description.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows=3, placeholder="Ek notlar (isteğe bağlı)") }}
+                    {% for error in form.notes.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-4">
+                    {{ form.image.label(class="form-label") }}
+                    <div class="row">
+                        <div class="col-md-8">
+                            {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else ""), accept="image/*", onchange="previewImage(this)") }}
+                            {% for error in form.image.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Desteklenen formatlar: JPG, JPEG, PNG, GIF</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="image-preview-container border rounded p-2 text-center">
+                                {% if equipment and equipment.image_path %}
+                                <img id="image-preview" src="{{ url_for('static', filename='uploads/' + equipment.image_path) }}" 
+                                     class="img-fluid" alt="Ekipman Resmi" style="max-height: 150px;">
+                                {% else %}
+                                <img id="image-preview" src="#" alt="Resim Önizleme" style="max-height: 150px; display: none;">
+                                <div id="no-image" class="text-muted py-5">
+                                    <i class="fas fa-image fa-3x mb-2"></i>
+                                    <p>Resim önizlemesi</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('projects.detail', id=project.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                    </a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('image-preview');
+        const noImage = document.getElementById('no-image');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                if (noImage) noImage.style.display = 'none';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+            if (noImage) noImage.style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}
+
+{% endblock %}

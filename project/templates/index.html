@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm" data-aos="fade-up">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-snowflake fa-4x text-primary mb-3"></i>
+                        <h1 class="display-4">Merkezi Soğutma Projeleri</h1>
+                        <p class="lead text-muted">Projelerinizi ve ekipmanlarınızı kolayca yönetin.</p>
+                    </div>
+                    
+                    <div class="row mt-5">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm" data-aos="fade-right" data-aos-delay="100">
+                                <div class="card-body text-center p-5">
+                                    <i class="fas fa-project-diagram fa-3x text-primary mb-3"></i>
+                                    <h3>Projeleri Görüntüle</h3>
+                                    <p class="text-muted">Tüm projelerinizi görüntüleyin, düzenleyin ve yönetin.</p>
+                                    <a href="{{ url_for('projects.list') }}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-arrow-right me-2"></i>Projelere Git
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm" data-aos="fade-left" data-aos-delay="200">
+                                <div class="card-body text-center p-5">
+                                    <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                                    <h3>Ekipmanları Yönet</h3>
+                                    <p class="text-muted">Ekipmanlarınızı kategorilere göre düzenleyin ve takip edin.</p>
+                                    {% if current_user.is_authenticated and current_user.is_admin %}
+
+                                    <a href="{{ url_for('categories.list') }}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-arrow-right me-2"></i>Kategorilere Git
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ url_for('projects.list') }}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-arrow-right me-2"></i>Projelere Git
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card border-0 bg-light" data-aos="fade-up" data-aos-delay="300">
+                                <div class="card-body p-4">
+                                    <h4><i class="fas fa-info-circle me-2 text-primary"></i>Sistem Özellikleri</h4>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3">
+                                                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                                                </div>
+                                                <div>
+                                                    <h5>Proje Yönetimi</h5>
+                                                    <p class="text-muted small">Projeleri oluşturun, düzenleyin ve takip edin.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3">
+                                                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                                                </div>
+                                                <div>
+                                                    <h5>Ekipman Takibi</h5>
+                                                    <p class="text-muted small">Ekipmanları kategorilere göre düzenleyin.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="d-flex">
+                                                <div class="me-3">
+                                                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                                                </div>
+                                                <div>
+                                                    <h5>Aktivite Kaydı</h5>
+                                                    <p class="text-muted small">Tüm değişiklikleri ve işlemleri takip edin.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

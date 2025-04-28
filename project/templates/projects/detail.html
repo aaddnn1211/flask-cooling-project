@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects.list') }}">Projeler</a></li>
+            <li class="breadcrumb-item active">{{ project.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card shadow-sm mb-4" data-aos="fade-up">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">{{ project.name }}</h1>
+                <div>
+                    {% if current_user.is_admin() or project.created_by_id == current_user.id %}
+                    <a href="{{ url_for('projects.edit', id=project.id) }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-edit me-1"></i>Düzenle
+                    </a>
+                    {% endif %}
+                    {% if current_user.is_admin() %}
+                    <button type="button" class="btn btn-outline-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteProjectModal">
+                        <i class="fas fa-trash me-1"></i>Sil
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Konum</h5>
+                        <p class="lead">{{ project.location }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-calendar-alt me-2"></i>Oluşturulma Tarihi</h5>
+                        <p class="lead">{{ project.created_at.strftime('%d.%m.%Y - %H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h5 class="text-muted"><i class="fas fa-align-left me-2"></i>Açıklama</h5>
+                <div class="p-3 bg-light rounded">
+                    {{ project.description|nl2br }}
+                </div>
+            </div>
+            
+            {% if project.notes %}
+            <div class="mb-4">
+                <h5 class="text-muted"><i class="fas fa-sticky-note me-2"></i>Notlar</h5>
+                <div class="p-3 bg-light rounded">
+                    {{ project.notes|nl2br }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Ekipmanlar -->
+    <div class="card shadow-sm mb-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <h3 class="mb-0"><i class="fas fa-tools me-2"></i>Ekipmanlar</h3>
+            <a href="{{ url_for('equipment.create', project_id=project.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Ekipman Ekle
+            </a>
+        </div>
+        <div class="card-body">
+            {% if equipment %}
+            <div class="row">
+                {% for item in equipment %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                        {% if item.image_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" 
+                             class="card-img-top" alt="{{ item.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <i class="fas fa-tools fa-4x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                            <p class="card-text text-muted small">{{ item.category.name if item.category else 'Kategorisiz' }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="badge bg-primary">Miktar: {{ item.quantity }}</span>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-secondary quantity-decrease" 
+                                            data-equipment-id="{{ item.id }}" 
+                                            {% if item.quantity <= 1 %}disabled{% endif %}>
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary quantity-increase" 
+                                            data-equipment-id="{{ item.id }}">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('equipment.detail', id=item.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-tools fa-4x text-muted mb-3"></i>
+                <p class="mb-3">Bu projede henüz ekipman bulunmuyor.</p>
+                <a href="{{ url_for('equipment.create', project_id=project.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Ekipman Ekle
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Yorumlar -->
+    <div class="card shadow-sm mb-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header bg-white py-3">
+            <h3 class="mb-0"><i class="fas fa-comments me-2"></i>Yorumlar</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('comments.add_project_comment', project_id=project.id) }}" class="mb-4">
+                {{ comment_form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ comment_form.content(class="form-control", rows=3, placeholder="Yorumunuzu yazın...") }}
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    {{ comment_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+            
+            <hr>
+            
+            {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <div class="avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" 
+                                 style="width: 40px; height: 40px;">
+                                {{ comment.author.full_name[:1] }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ comment.author.full_name }}</h6>
+                                <small class="text-muted">{{ comment.created_at.strftime('%d.%m.%Y - %H:%M') }}</small>
+                            </div>
+                            <p class="mt-2 mb-1">{{ comment.content|nl2br }}</p>
+                            
+                            {% if current_user.is_admin() or comment.created_by_id == current_user.id %}
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteCommentModal{{ comment.id }}">
+                                    <i class="fas fa-trash me-1"></i>Sil
+                                </button>
+                                
+                                <!-- Yorum Silme Modalı -->
+                                <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Yorumu Sil</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Bu yorumu silmek istediğinizden emin misiniz?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                                <form action="{{ url_for('comments.delete', id=comment.id) }}" method="POST">
+                                                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                <p>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Aktivite Kaydı -->
+    <div class="card shadow-sm mb-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="card-header bg-white py-3">
+            <h3 class="mb-0"><i class="fas fa-history me-2"></i>Aktivite Kaydı</h3>
+        </div>
+        <div class="card-body">
+            {% if activities %}
+            <div class="timeline">
+                {% for activity in activities %}
+                <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                    <div class="timeline-icon 
+                        {% if activity.action == 'add' %}bg-success
+                        {% elif activity.action == 'edit' %}bg-primary
+                        {% elif activity.action == 'delete' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {% if activity.action == 'add' %}
+                        <i class="fas fa-plus"></i>
+                        {% elif activity.action == 'edit' %}
+                        <i class="fas fa-edit"></i>
+                        {% elif activity.action == 'delete' %}
+                        <i class="fas fa-trash"></i>
+                        {% else %}
+                        <i class="fas fa-info"></i>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-content">
+                        <p class="mb-1">{{ activity.description }}</p>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ activity.user.full_name }} tarafından</small>
+                            <small class="text-muted">{{ activity.created_at.strftime('%d.%m.%Y - %H:%M') }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                <p>Henüz aktivite kaydı bulunmuyor.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Proje Silme Modalı -->
+    <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Projeyi Sil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>"{{ project.name }}" projesini silmek istediğinizden emin misiniz?</p>
+                    <p class="text-danger">Bu işlem geri alınamaz ve projeye ait tüm ekipmanlar, yorumlar ve aktiviteler silinecektir.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <form action="{{ url_for('projects.delete', id=project.id) }}" method="POST">
+                        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Ekipman miktarı güncelleme
+    document.addEventListener('DOMContentLoaded', function() {
+        // Miktar azaltma
+        document.querySelectorAll('.quantity-decrease').forEach(button => {
+            button.addEventListener('click', function() {
+                const equipmentId = this.dataset.equipmentId;
+                updateQuantity(equipmentId, -1, this);
+            });
+        });
+        
+        // Miktar artırma
+        document.querySelectorAll('.quantity-increase').forEach(button => {
+            button.addEventListener('click', function() {
+                const equipmentId = this.dataset.equipmentId;
+                updateQuantity(equipmentId, 1, this);
+            });
+        });
+        
+        // Miktar güncelleme fonksiyonu
+        function updateQuantity(equipmentId, change, button) {
+            const card = button.closest('.card');
+            const quantityBadge = card.querySelector('.badge');
+            const currentQuantity = parseInt(quantityBadge.textContent.split(': ')[1]);
+            const newQuantity = currentQuantity + change;
+            
+            if (newQuantity < 1) return;
+            
+            fetch(`/equipment/${equipmentId}/update-quantity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: newQuantity }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    quantityBadge.textContent = `Miktar: ${data.quantity}`;
+                    
+                    // Azaltma düğmesini devre dışı bırak/etkinleştir
+                    const decreaseButton = card.querySelector('.quantity-decrease');
+                    if (data.quantity <= 1) {
+                        decreaseButton.setAttribute('disabled', 'disabled');
+                    } else {
+                        decreaseButton.removeAttribute('disabled');
+                    }
+                    
+                    // Başarılı bildirim göster
+                    const toast = document.createElement('div');
+                    toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Miktar başarıyla güncellendi.
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.show();
+                    
+                    // Toast'ı 3 saniye sonra kaldır
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                } else {
+                    alert('Miktar güncellenirken bir hata oluştu: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Miktar güncellenirken bir hata oluştu.');
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

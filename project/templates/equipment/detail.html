@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects.list') }}">Projeler</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects.detail', id=equipment.project_id) }}">{{ equipment.project.name }}</a></li>
+            <li class="breadcrumb-item active">{{ equipment.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card shadow-sm mb-4" data-aos="fade-up">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">{{ equipment.name }}</h1>
+                <div>
+                    {% if current_user.is_admin() or equipment.created_by_id == current_user.id %}
+                    <a href="{{ url_for('equipment.edit', id=equipment.id) }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-edit me-1"></i>Düzenle
+                    </a>
+                    {% endif %}
+                    {% if current_user.is_admin() or equipment.created_by_id == current_user.id %}
+                    <button type="button" class="btn btn-outline-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteEquipmentModal">
+                        <i class="fas fa-trash me-1"></i>Sil
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {% if equipment.image_path %}
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='uploads/' + equipment.image_path) }}" 
+                             class="img-fluid rounded shadow-sm" alt="{{ equipment.name }}">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-tag me-2"></i>Kategori</h5>
+                        <p class="lead">{{ equipment.category.name if equipment.category else 'Kategorisiz' }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-hashtag me-2"></i>Miktar</h5>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary fs-5 me-3">{{ equipment.quantity }}</span>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary quantity-decrease" 
+                                        data-equipment-id="{{ equipment.id }}" 
+                                        {% if equipment.quantity <= 1 %}disabled{% endif %}>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary quantity-increase" 
+                                        data-equipment-id="{{ equipment.id }}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-align-left me-2"></i>Açıklama</h5>
+                        <div class="p-3 bg-light rounded">
+                            {{ equipment.description|nl2br }}
+                        </div>
+                    </div>
+                    
+                    {% if equipment.notes %}
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-sticky-note me-2"></i>Notlar</h5>
+                        <div class="p-3 bg-light rounded">
+                            {{ equipment.notes|nl2br }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-calendar-alt me-2"></i>Eklenme Tarihi</h5>
+                        <p>{{ equipment.created_at.strftime('%d.%m.%Y - %H:%M') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5 class="text-muted"><i class="fas fa-user me-2"></i>Ekleyen</h5>
+                        <p>{{ equipment.creator.full_name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yorumlar -->
+    <div class="card shadow-sm mb-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-header bg-white py-3">
+            <h3 class="mb-0"><i class="fas fa-comments me-2"></i>Yorumlar</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('comments.add_equipment_comment', equipment_id=equipment.id) }}" class="mb-4">
+                {{ comment_form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ comment_form.content(class="form-control", rows=3, placeholder="Yorumunuzu yazın...") }}
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    {{ comment_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+            
+            <hr>
+            
+            {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <div class="avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" 
+                                 style="width: 40px; height: 40px;">
+                                {{ comment.author.full_name[:1] }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ comment.author.full_name }}</h6>
+                                <small class="text-muted">{{ comment.created_at.strftime('%d.%m.%Y - %H:%M') }}</small>
+                            </div>
+                            <p class="mt-2 mb-1">{{ comment.content|nl2br }}</p>
+                            
+                            {% if current_user.is_admin() or comment.created_by_id == current_user.id %}
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteCommentModal{{ comment.id }}">
+                                    <i class="fas fa-trash me-1"></i>Sil
+                                </button>
+                                
+                                <!-- Yorum Silme Modalı -->
+                                <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Yorumu Sil</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Bu yorumu silmek istediğinizden emin misiniz?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                                <form action="{{ url_for('comments.delete', id=comment.id) }}" method="POST">
+                                                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                <p>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Ekipman Silme Modalı -->
+    <div class="modal fade" id="deleteEquipmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ekipmanı Sil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>"{{ equipment.name }}" ekipmanını silmek istediğinizden emin misiniz?</p>
+                    <p class="text-danger">Bu işlem geri alınamaz ve ekipmana ait tüm yorumlar silinecektir.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <form action="{{ url_for('equipment.delete', id=equipment.id) }}" method="POST">
+                        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Ekipman miktarı güncelleme
+    document.addEventListener('DOMContentLoaded', function() {
+        // Miktar azaltma
+        document.querySelectorAll('.quantity-decrease').forEach(button => {
+            button.addEventListener('click', function() {
+                const equipmentId = this.dataset.equipmentId;
+                updateQuantity(equipmentId, -1, this);
+            });
+        });
+        
+        // Miktar artırma
+        document.querySelectorAll('.quantity-increase').forEach(button => {
+            button.addEventListener('click', function() {
+                const equipmentId = this.dataset.equipmentId;
+                updateQuantity(equipmentId, 1, this);
+            });
+        });
+        
+        // Miktar güncelleme fonksiyonu
+        function updateQuantity(equipmentId, change, button) {
+            const quantityBadge = document.querySelector('.badge');
+            const currentQuantity = parseInt(quantityBadge.textContent);
+            const newQuantity = currentQuantity + change;
+            
+            if (newQuantity < 1) return;
+            
+            fetch(`/equipment/${equipmentId}/update-quantity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: newQuantity }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    quantityBadge.textContent = data.quantity;
+                    
+                    // Azaltma düğmesini devre dışı bırak/etkinleştir
+                    const decreaseButton = document.querySelector('.quantity-decrease');
+                    if (data.quantity <= 1) {
+                        decreaseButton.setAttribute('disabled', 'disabled');
+                    } else {
+                        decreaseButton.removeAttribute('disabled');
+                    }
+                    
+                    // Başarılı bildirim göster
+                    const toast = document.createElement('div');
+                    toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Miktar başarıyla güncellendi.
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.show();
+                    
+                    // Toast'ı 3 saniye sonra kaldır
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                } else {
+                    alert('Miktar güncellenirken bir hata oluştu: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Miktar güncellenirken bir hata oluştu.');
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}
