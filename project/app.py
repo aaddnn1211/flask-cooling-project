@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 import os
-from config import Config
+from project.config import Config
 from markupsafe import Markup
 
 # --- إنشاء تطبيق Flask ---
