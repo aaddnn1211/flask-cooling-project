@@ -28,8 +28,8 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Bu sayfayı görüntülemek için lütfen giriş yapın.'
 
 # --- استيراد النماذج والطرق بعد تهيئة التطبيق ---
-from models import user, project, equipment, category, comment, activity
-from routes import auth, projects, equipment, categories, comments
+from project.models import user, project, equipment, category, comment, activity
+from project.routes import auth, projects, equipment, categories, comments
 
 # --- تسجيل Blueprints ---
 app.register_blueprint(auth.bp)
