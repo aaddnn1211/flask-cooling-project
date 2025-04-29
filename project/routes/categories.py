@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from project.app import db
 from project.models.category import Category
 from project.models.activity import Activity
-from forms.category import CategoryForm
+from project.forms.category import CategoryForm
 
 bp = Blueprint('categories', __name__, url_prefix='/categories')
 

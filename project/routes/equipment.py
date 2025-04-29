@@ -7,12 +7,12 @@ from project.models.equipment import Equipment
 from project.models.category import Category
 from project.models.activity import Activity
 from project.models.comment import Comment
-from forms.equipment import EquipmentForm
+from project.forms.equipment import EquipmentForm
 from utils.file_handler import save_image, allowed_file
 
 bp = Blueprint('equipment', __name__, url_prefix='/equipment')
 
-from forms.comment import CommentForm  # تأكد أن هذا الاستيراد موجود فوق
+from project.forms.comment import CommentForm  # تأكد أن هذا الاستيراد موجود فوق
 
 @bp.route('/<int:id>')
 @login_required

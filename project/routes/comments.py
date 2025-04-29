@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from project.app import db
 from project.models.comment import Comment
 from project.models.activity import Activity
-from forms.comment import CommentForm
+from project.forms.comment import CommentForm
 
 bp = Blueprint('comments', __name__, url_prefix='/comments')
 

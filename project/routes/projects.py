@@ -5,8 +5,8 @@ from project.models.project import Project
 from project.models.activity import Activity
 from project.models.comment import Comment
 from project.models.equipment import Equipment
-from forms.project import ProjectForm
-from forms.comment import CommentForm
+from project.forms.project import ProjectForm
+from project.forms.comment import CommentForm
 
 bp = Blueprint('projects', __name__, url_prefix='/projects')
 
