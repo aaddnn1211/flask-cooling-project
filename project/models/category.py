@@ -1,6 +1,5 @@
 from datetime import datetime
-from project.app import
- db
+from project.app import db
 
 class Category(db.Model):
     __tablename__ = 'categories'
