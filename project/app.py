@@ -31,6 +31,10 @@ login_manager.login_message = 'Bu sayfayı görüntülemek için lütfen giriş 
 from project.models import user, project, equipment, category, comment, activity
 from project.routes import auth, projects, equipment, categories, comments
 
+# --- إنشاء الجداول في قاعدة البيانات إذا لم تكن موجودة ---
+with app.app_context():
+    db.create_all()
+
 # --- تسجيل Blueprints ---
 app.register_blueprint(auth.bp)
 app.register_blueprint(projects.bp)
