@@ -1,9 +1,9 @@
-from project.app import
- db, app
+from project.app import db, app
 from project.models.user import User
-from models.category import Category
+from project.models.category import Category
 from werkzeug.security import generate_password_hash
 import os
+
 
 # Veritabanını oluştur
 with app.app_context():

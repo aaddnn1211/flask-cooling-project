@@ -2,8 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, TextAreaField, IntegerField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, NumberRange
-from project.app import
- app
+from project.app import app
 
 class EquipmentForm(FlaskForm):
     name = StringField('Ekipman Adı', validators=[DataRequired(), Length(min=2, max=100)])

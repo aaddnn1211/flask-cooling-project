@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
-from project.app import
- db
+from project.app import db
 from models.project import Project
 from models.activity import Activity
 from models.comment import Comment

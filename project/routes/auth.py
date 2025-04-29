@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from urllib.parse import urlparse
-from project.app import
- db
+from project.app import db
 from forms.auth import LoginForm
 
 bp = Blueprint('auth', __name__)
@@ -14,7 +13,7 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        from models.user import User  # تم نقل الاستيراد إلى هنا لمنع الاستيراد الدائري
+        from project.models.user import User # تم نقل الاستيراد إلى هنا لمنع الاستيراد الدائري
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Geçersiz kullanıcı adı veya şifre', 'danger')
