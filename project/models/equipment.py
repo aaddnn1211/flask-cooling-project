@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
-from app import db
+from project.app import
+ db
 
 class Equipment(db.Model):
     __tablename__ = 'equipment'

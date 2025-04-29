@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app import db
+from project.app import
+ db
 from models.category import Category
 from models.activity import Activity
 from forms.category import CategoryForm
