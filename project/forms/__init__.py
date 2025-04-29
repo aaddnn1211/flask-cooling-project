@@ -1,6 +1,6 @@
 # Import forms to make them available
-from forms.auth import LoginForm
-from forms.project import ProjectForm
-from forms.equipment import EquipmentForm
-from forms.category import CategoryForm
-from forms.comment import CommentForm
+from project.forms.auth import LoginForm
+from project.forms.project import ProjectForm
+from project.forms.equipment import EquipmentForm
+from project.forms.category import CategoryForm
+from project.forms.comment import CommentForm
