@@ -8,7 +8,7 @@ from project.models.category import Category
 from project.models.activity import Activity
 from project.models.comment import Comment
 from project.forms.equipment import EquipmentForm
-from utils.file_handler import save_image, allowed_file
+from project.utils.file_handler import save_image, allowed_file
 
 bp = Blueprint('equipment', __name__, url_prefix='/equipment')
 
