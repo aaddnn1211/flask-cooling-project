@@ -2,14 +2,11 @@ from project.app import db, app
 from project.models.user import User
 from project.models.category import Category
 from werkzeug.security import generate_password_hash
-import os
 
-
-# Veritabanını oluştur
-with app.app_context():
+def create_initial_data():
     # Veritabanı tablolarını oluştur
     db.create_all()
-    
+
     # Yönetici kullanıcıları oluştur
     admin_users = [
         {
@@ -48,7 +45,7 @@ with app.app_context():
             'role': 'admin'
         }
     ]
-    
+
     # Normal kullanıcıları oluştur
     regular_users = [
         {
@@ -80,10 +77,9 @@ with app.app_context():
             'role': 'user'
         }
     ]
-    
+
     # Kullanıcıları veritabanına ekle
     for user_data in admin_users + regular_users:
-        # Kullanıcı zaten var mı kontrol et
         existing_user = User.query.filter_by(username=user_data['username']).first()
         if not existing_user:
             user = User(
@@ -94,7 +90,7 @@ with app.app_context():
                 role=user_data['role']
             )
             db.session.add(user)
-    
+
     # Temel kategorileri oluştur
     categories = [
         {'name': 'Evaporatörler', 'description': 'Soğutucu akışkanın buharlaştığı ısı değiştiricileri'},
@@ -104,10 +100,8 @@ with app.app_context():
         {'name': 'Borular ve Bağlantılar', 'description': 'Soğutucu akışkanın dolaştığı borular ve bağlantı elemanları'},
         {'name': 'Kontrol Sistemleri', 'description': 'Soğutma sistemini kontrol eden elektronik cihazlar'}
     ]
-    
-    # Kategorileri veritabanına ekle
+
     for category_data in categories:
-        # Kategori zaten var mı kontrol et
         existing_category = Category.query.filter_by(name=category_data['name']).first()
         if not existing_category:
             category = Category(
@@ -115,10 +109,13 @@ with app.app_context():
                 description=category_data['description']
             )
             db.session.add(category)
-    
-    # Değişiklikleri kaydet
+
     db.session.commit()
-    
+
     print("Veritabanı başarıyla oluşturuldu ve örnek veriler eklendi.")
     print("Yönetici kullanıcıları: admin1, admin2, admin3, admin4, admin5 (şifre: admin123)")
     print("Normal kullanıcılar: user1, user2, user3, user4 (şifre: user123)")
+
+if __name__ == '__main__':
+    with app.app_context():
+        create_initial_data()
