@@ -3,10 +3,10 @@ from flask_login import login_required, current_user
 import os
 from werkzeug.utils import secure_filename
 from project.app import db
-from models.equipment import Equipment
-from models.category import Category
-from models.activity import Activity
-from models.comment import Comment
+from project.models.equipment import Equipment
+from project.models.category import Category
+from project.models.activity import Activity
+from project.models.comment import Comment
 from forms.equipment import EquipmentForm
 from utils.file_handler import save_image, allowed_file
 
@@ -32,7 +32,7 @@ def detail(id):
 @login_required
 def create(project_id):
     """Yeni ekipman ekle"""
-    from models.project import Project
+    from project.models.project import Project
     
     project = Project.query.get_or_404(project_id)
     categories = Category.query.all()

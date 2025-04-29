@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from project.app import db
-from models.comment import Comment
-from models.activity import Activity
+from project.models.comment import Comment
+from project.models.activity import Activity
 from forms.comment import CommentForm
 
 bp = Blueprint('comments', __name__, url_prefix='/comments')
@@ -11,7 +11,7 @@ bp = Blueprint('comments', __name__, url_prefix='/comments')
 @login_required
 def add_project_comment(project_id):
     """Projeye yorum ekle"""
-    from models.project import Project
+    from project.models.project import Project
     
     project = Project.query.get_or_404(project_id)
     form = CommentForm()
@@ -44,7 +44,7 @@ def add_project_comment(project_id):
 @login_required
 def add_equipment_comment(equipment_id):
     """Ekipmana yorum ekle"""
-    from models.equipment import Equipment
+    from project.models.equipment import Equipment
     
     equipment = Equipment.query.get_or_404(equipment_id)
     form = CommentForm()

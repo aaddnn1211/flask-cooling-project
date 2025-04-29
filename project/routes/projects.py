@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from project.app import db
-from models.project import Project
-from models.activity import Activity
-from models.comment import Comment
-from models.equipment import Equipment
+from project.models.project import Project
+from project.models.activity import Activity
+from project.models.comment import Comment
+from project.models.equipment import Equipment
 from forms.project import ProjectForm
 from forms.comment import CommentForm
 
